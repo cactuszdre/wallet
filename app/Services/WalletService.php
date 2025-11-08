@@ -1,0 +1,259 @@
+<?php
+
+namespace App\Services;
+
+use Exception;
+use kornrunner\Keccak;
+
+class WalletService
+{
+    /**
+     * Generate a new Ethereum wallet (compatible with Base).
+     * 
+     * @return array
+     */
+    public function generateWallet(): array
+    {
+        try {
+            // Générer une clé privée aléatoire (32 bytes = 64 hex chars)
+            $privateKey = $this->generatePrivateKey();
+            
+            // Générer l'adresse publique depuis la clé privée
+            $address = $this->privateKeyToAddress($privateKey);
+            
+            return [
+                'success' => true,
+                'address' => $address,
+                'private_key' => $privateKey,
+            ];
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Generate a random private key.
+     * 
+     * @return string
+     */
+    private function generatePrivateKey(): string
+    {
+        // Générer 32 bytes aléatoires cryptographiquement sûrs
+        $privateKey = bin2hex(random_bytes(32));
+        
+        return '0x' . $privateKey;
+    }
+
+    /**
+     * Convert private key to Ethereum address.
+     * 
+     * @param string $privateKey
+     * @return string
+     */
+    private function privateKeyToAddress(string $privateKey): string
+    {
+        // Supprimer le préfixe 0x si présent
+        $privateKey = str_replace('0x', '', $privateKey);
+        
+        // Obtenir la clé publique depuis la clé privée
+        $publicKey = $this->privateKeyToPublicKey($privateKey);
+        
+        // Hash Keccak-256 de la clé publique
+        $hash = Keccak::hash(hex2bin($publicKey), 256);
+        
+        // Prendre les 20 derniers bytes (40 caractères hex)
+        $address = '0x' . substr($hash, -40);
+        
+        // Appliquer le checksum EIP-55
+        return $this->toChecksumAddress($address);
+    }
+
+    /**
+     * Get public key from private key using secp256k1.
+     * 
+     * @param string $privateKey
+     * @return string
+     */
+    private function privateKeyToPublicKey(string $privateKey): string
+    {
+        // Utiliser OpenSSL pour générer la clé publique
+        $context = secp256k1_context_create(SECP256K1_CONTEXT_SIGN | SECP256K1_CONTEXT_VERIFY);
+        
+        $privateKeyBin = hex2bin($privateKey);
+        $publicKey = '';
+        $result = secp256k1_ec_pubkey_create($context, $publicKey, $privateKeyBin);
+        
+        if ($result === 1) {
+            $serialized = '';
+            secp256k1_ec_pubkey_serialize($context, $serialized, $publicKey, SECP256K1_EC_UNCOMPRESSED);
+            // Retirer le premier byte (0x04) qui indique le format non compressé
+            return substr(bin2hex($serialized), 2);
+        }
+        
+        throw new Exception('Failed to generate public key');
+    }
+
+    /**
+     * Apply EIP-55 checksum to address.
+     * 
+     * @param string $address
+     * @return string
+     */
+    private function toChecksumAddress(string $address): string
+    {
+        $address = strtolower(str_replace('0x', '', $address));
+        $hash = Keccak::hash($address, 256);
+        $checksum = '0x';
+
+        for ($i = 0; $i < strlen($address); $i++) {
+            if (intval($hash[$i], 16) >= 8) {
+                $checksum .= strtoupper($address[$i]);
+            } else {
+                $checksum .= $address[$i];
+            }
+        }
+
+        return $checksum;
+    }
+
+    /**
+     * Validate if an address is a valid Ethereum address.
+     * 
+     * @param string $address
+     * @return bool
+     */
+    public function isValidAddress(string $address): bool
+    {
+        // Vérifier le format de base
+        if (!preg_match('/^0x[a-fA-F0-9]{40}$/', $address)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Get balance for an address using Base RPC.
+     * 
+     * @param string $address
+     * @param string $network
+     * @return array
+     */
+    public function getBalance(string $address, string $network = 'base'): array
+    {
+        try {
+            $rpcUrl = $this->getRpcUrl($network);
+            
+            $response = $this->callRpc($rpcUrl, 'eth_getBalance', [$address, 'latest']);
+            
+            if (isset($response['result'])) {
+                // Convertir de Wei (hex) vers ETH
+                $balanceWei = hexdec($response['result']);
+                $balanceEth = $balanceWei / 1e18;
+                
+                return [
+                    'success' => true,
+                    'balance' => $balanceEth,
+                    'balance_wei' => $balanceWei,
+                ];
+            }
+            
+            return [
+                'success' => false,
+                'error' => 'Failed to get balance',
+            ];
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Get RPC URL for network.
+     * 
+     * @param string $network
+     * @return string
+     */
+    private function getRpcUrl(string $network): string
+    {
+        $urls = [
+            'base' => env('BASE_RPC_URL', 'https://mainnet.base.org'),
+            'base-sepolia' => env('BASE_SEPOLIA_RPC_URL', 'https://sepolia.base.org'),
+        ];
+
+        return $urls[$network] ?? $urls['base'];
+    }
+
+    /**
+     * Make RPC call to blockchain.
+     * 
+     * @param string $url
+     * @param string $method
+     * @param array $params
+     * @return array
+     */
+    private function callRpc(string $url, string $method, array $params = []): array
+    {
+        $data = [
+            'jsonrpc' => '2.0',
+            'method' => $method,
+            'params' => $params,
+            'id' => 1,
+        ];
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode !== 200) {
+            throw new Exception("RPC call failed with code: {$httpCode}");
+        }
+
+        return json_decode($response, true);
+    }
+
+    /**
+     * Get transaction count (nonce) for an address.
+     * 
+     * @param string $address
+     * @param string $network
+     * @return array
+     */
+    public function getTransactionCount(string $address, string $network = 'base'): array
+    {
+        try {
+            $rpcUrl = $this->getRpcUrl($network);
+            $response = $this->callRpc($rpcUrl, 'eth_getTransactionCount', [$address, 'latest']);
+            
+            if (isset($response['result'])) {
+                return [
+                    'success' => true,
+                    'count' => hexdec($response['result']),
+                ];
+            }
+            
+            return [
+                'success' => false,
+                'error' => 'Failed to get transaction count',
+            ];
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+}

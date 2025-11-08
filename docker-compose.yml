@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  mariadb:
+    image: mariadb:11.2
+    container_name: moula_mariadb
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: root_password_secret
+      MYSQL_DATABASE: moula_db
+      MYSQL_USER: moula_user
+      MYSQL_PASSWORD: moula_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    networks:
+      - moula_network
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: moula_phpmyadmin
+    restart: unless-stopped
+    environment:
+      PMA_HOST: mariadb
+      PMA_PORT: 3306
+      PMA_USER: root
+      PMA_PASSWORD: root_password_secret
+    ports:
+      - "8080:80"
+    depends_on:
+      - mariadb
+    networks:
+      - moula_network
+
+volumes:
+  mariadb_data:
+    driver: local
+
+networks:
+  moula_network:
+    driver: bridge
