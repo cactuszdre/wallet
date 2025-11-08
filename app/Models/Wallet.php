@@ -22,6 +22,7 @@ class Wallet extends Model
         'user_id',
         'name',
         'address',
+        'private_key', // Virtuel - sera converti en private_key_encrypted via mutateur
         'private_key_encrypted',
         'network',
         'balance',
