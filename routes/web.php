@@ -3,6 +3,7 @@
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WalletController;
+use App\Http\Controllers\WalletConnectController;
 use Illuminate\Support\Facades\Route;
 
 // Redirect to home if authenticated, otherwise to login
@@ -27,6 +28,11 @@ Route::middleware(['auth'])->group(function () {
     Route::post('wallets-import', [WalletController::class, 'storeImport'])->name('wallets.store-import');
     Route::post('wallets/{wallet}/refresh-balance', [WalletController::class, 'refreshBalance'])->name('wallets.refresh-balance');
     Route::get('wallets/{wallet}/export-private-key', [WalletController::class, 'exportPrivateKey'])->name('wallets.export-private-key');
+});
+
+// WalletConnect routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/walletconnect', [WalletConnectController::class, 'index'])->name('walletconnect.index');
 });
 
 // Profile routes

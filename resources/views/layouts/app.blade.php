@@ -46,11 +46,21 @@
                                 </svg>
                                 Wallets
                             </a>
+
+                            <a href="{{ route('walletconnect.index') }}" class="inline-flex items-center px-1 pt-1 border-b-2 {{ request()->routeIs('walletconnect.*') ? 'border-blue-500 text-gray-900' : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700' }} text-sm font-medium">
+                                <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+                                </svg>
+                                WalletConnect
+                            </a>
                         </div>
                     </div>
 
                     <!-- Right Side -->
-                    <div class="flex items-center">
+                    <div class="flex items-center space-x-4">
+                        <!-- WalletConnect Button -->
+                        <x-wallet-connect-button />
+
                         <!-- Quick Create Button -->
                         <a href="{{ route('wallets.create') }}" class="hidden md:inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-sm">
                             <svg class="mr-2 h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
