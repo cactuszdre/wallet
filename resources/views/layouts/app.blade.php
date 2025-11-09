@@ -70,13 +70,22 @@
                     </button>
                 </div>
 
-                <div class="navbar-user">
-                    <span class="user-name">{{ Auth::user()->name }}</span>
-                    <form method="POST" action="{{ route('logout') }}" style="display: inline;">
-                        @csrf
-                        <button type="submit" class="btn-logout">Déconnexion</button>
-                    </form>
-                </div>
+                @auth
+                    <div class="navbar-user">
+                        <span class="user-name">{{ Auth::user()->name }}</span>
+                        <form method="POST" action="{{ route('logout') }}" style="display: inline;">
+                            @csrf
+                            <button type="submit" class="btn-logout">Déconnexion</button>
+                        </form>
+                    </div>
+                @else
+                    <div class="navbar-user">
+                        <a href="{{ route('login') }}" class="navbar-link">Se connecter</a>
+                        @if(Route::has('register'))
+                            <a href="{{ route('register') }}" class="navbar-link">S'inscrire</a>
+                        @endif
+                    </div>
+                @endauth
             </div>
         </nav>
 

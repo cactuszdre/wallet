@@ -1,235 +1,118 @@
 /* ============================================
-   WALLETS IMPORT - Importation de wallet
+   WALLETS - Import (two-card layout)
    ============================================ */
 
-.import-wallet-container {
-    max-width: 600px;
-    margin: 2rem auto;
+:root {
+    --card-bg: var(--bg-secondary);
+    --card-border: rgba(45,55,72,0.35);
+    --accent: var(--gold);
 }
 
-.import-wallet-header {
-    text-align: center;
-    margin-bottom: 2rem;
+.import-page {
+    padding: 2.5rem 0;
 }
 
-.import-wallet-title {
-    font-size: 2rem;
-    font-weight: 700;
-    color: var(--text-primary);
-    margin-bottom: 0.5rem;
+.import-header {
+    text-align: left;
+    margin-bottom: 1.25rem;
 }
 
-.import-wallet-subtitle {
+.back-link {
+    display: inline-block;
     color: var(--text-secondary);
-    font-size: 1rem;
-}
-
-.import-wallet-form {
-    background-color: var(--bg-card);
-    border: 1px solid var(--border-primary);
-    border-radius: var(--radius-xl);
-    padding: 2rem;
-}
-
-/* Security warnings */
-.security-warnings {
-    margin-bottom: 2rem;
-}
-
-.security-warning {
-    background-color: var(--error-bg);
-    border: 1px solid var(--error-border);
-    border-radius: var(--radius-lg);
-    padding: 1rem;
-    margin-bottom: 1rem;
-}
-
-.security-warning:last-child {
-    margin-bottom: 0;
-}
-
-.security-warning-header {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 0.75rem;
-}
-
-.security-warning-icon {
-    flex-shrink: 0;
-    color: var(--error);
-    width: 1.5rem;
-    height: 1.5rem;
-}
-
-.security-warning-title {
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--error);
-    margin: 0;
-}
-
-.security-warning-list {
-    list-style: none;
-    padding-left: 2.25rem;
-    margin: 0;
-}
-
-.security-warning-list li {
-    font-size: 0.8125rem;
-    color: #fca5a5;
     margin-bottom: 0.5rem;
-    position: relative;
-    padding-left: 1rem;
+    text-decoration: none;
 }
 
-.security-warning-list li::before {
-    content: '•';
-    position: absolute;
-    left: 0;
-    color: var(--error);
-}
-
-/* Private key input */
-.private-key-group {
-    margin-bottom: 1.5rem;
-}
-
-.private-key-input-container {
-    position: relative;
-}
-
-.private-key-input {
-    font-family: var(--font-mono);
-    padding-right: 3rem;
-}
-
-.toggle-visibility-button {
-    position: absolute;
-    right: 0.75rem;
-    top: 50%;
-    transform: translateY(-50%);
-    background: none;
-    border: none;
-    color: var(--text-secondary);
-    cursor: pointer;
-    padding: 0.5rem;
-    border-radius: var(--radius-sm);
-    transition: all 0.2s ease;
-}
-
-.toggle-visibility-button:hover {
+.import-title {
+    font-size: 1.75rem;
+    font-weight: 800;
     color: var(--text-primary);
-    background-color: var(--bg-hover);
+    margin: 0 0 0.25rem 0;
 }
 
-.toggle-visibility-button svg {
-    width: 1.25rem;
-    height: 1.25rem;
+.import-subtitle {
+    color: var(--text-secondary);
+    margin: 0 0 1.5rem 0;
 }
 
-/* Import confirmation */
-.import-confirmation {
-    background-color: var(--warning-bg);
-    border: 1px solid var(--warning-border);
-    border-radius: var(--radius-lg);
-    padding: 1rem;
-    margin-top: 1.5rem;
+.import-grid {
+    display: grid;
+    grid-template-columns: 1fr 420px;
+    gap: 1.5rem;
+    align-items: start;
 }
 
-.confirmation-checkbox {
+.card {
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    box-shadow: 0 8px 24px rgba(2,6,23,0.25);
+}
+
+.card--ghost {
+    opacity: 0.98;
+}
+
+.card__head h3 {
+    margin: 0 0 0.25rem 0;
+    font-size: 1.125rem;
+}
+
+.card__sub {
+    margin: 0 0 1rem 0;
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+}
+
+.card__body {
+    padding-top: 0.5rem;
+}
+
+.form {
     display: flex;
-    align-items: flex-start;
+    flex-direction: column;
     gap: 0.75rem;
 }
 
-.confirmation-checkbox input[type="checkbox"] {
-    margin-top: 0.25rem;
-    width: 1.25rem;
-    height: 1.25rem;
-    flex-shrink: 0;
-    cursor: pointer;
-}
-
-.confirmation-checkbox label {
+.form__label {
     font-size: 0.875rem;
-    color: #fcd34d;
-    cursor: pointer;
-    user-select: none;
+    color: var(--text-secondary);
 }
 
-/* Best practices */
-.best-practices {
-    background-color: rgba(59, 130, 246, 0.1);
-    border: 1px solid rgba(59, 130, 246, 0.2);
-    border-radius: var(--radius-lg);
-    padding: 1.5rem;
-    margin-bottom: 2rem;
+.form__input,
+.form__select {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border-radius: 8px;
+    border: 1px solid rgba(0,0,0,0.06);
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    font-size: 0.95rem;
 }
 
-.best-practices-title {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    font-size: 0.875rem;
-    font-weight: 600;
-    color: var(--blue);
-    margin-bottom: 1rem;
+.form__input--mono { font-family: 'Courier New', monospace; }
+
+.input-with-action { display: flex; gap: 0.5rem; align-items: center; }
+.action-btn { background: none; border: none; cursor: pointer; padding: 0.5rem; font-size: 1.05rem; }
+
+.form__actions { display:flex; gap:0.75rem; margin-top:0.5rem; }
+.btn { padding:0.65rem 0.9rem; border-radius:8px; font-weight:600; cursor:pointer; border:1px solid transparent; }
+.btn--accent { background: linear-gradient(135deg,var(--accent) 0%, var(--gold-light) 100%); color: var(--bg-primary); }
+.btn--primary { background: var(--primary); color: white; }
+.btn--ghost { background: transparent; border:1px solid rgba(255,255,255,0.03); color: var(--text-secondary); }
+
+.card__foot { margin-top:1rem; font-size:0.85rem; color:var(--text-secondary); }
+.muted { color: var(--text-secondary); }
+
+/* Responsive adjustments */
+@media (max-width: 1000px) {
+    .import-grid { grid-template-columns: 1fr; }
 }
 
-.best-practices-icon {
-    width: 1.5rem;
-    height: 1.5rem;
+@media (max-width: 480px) {
+    .import-title { font-size:1.25rem; }
+    .form__input, .form__select { padding: 0.55rem; }
 }
 
-.best-practices-list {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-}
-
-.best-practices-list li {
-    font-size: 0.8125rem;
-    color: #93c5fd;
-    margin-bottom: 0.75rem;
-    padding-left: 1.5rem;
-    position: relative;
-}
-
-.best-practices-list li::before {
-    content: '✓';
-    position: absolute;
-    left: 0;
-    color: var(--blue);
-    font-weight: 700;
-}
-
-.best-practices-list li:last-child {
-    margin-bottom: 0;
-}
-
-/* Form actions */
-.import-actions {
-    display: flex;
-    gap: 1rem;
-    margin-top: 2rem;
-}
-
-.import-actions .btn {
-    flex: 1;
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .import-wallet-container {
-        margin: 1rem auto;
-    }
-    
-    .import-wallet-form {
-        padding: 1.5rem;
-    }
-    
-    .import-actions {
-        flex-direction: column;
-    }
-}
