@@ -5,6 +5,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WalletController;
 use App\Http\Controllers\WalletConnectController;
 use App\Http\Controllers\SmartContractController;
+use App\Http\Controllers\ViewOnlyWalletController;
 use Illuminate\Support\Facades\Route;
 
 // Redirect to home if authenticated, otherwise to login
@@ -29,6 +30,13 @@ Route::middleware(['auth'])->group(function () {
     Route::post('wallets-import', [WalletController::class, 'storeImport'])->name('wallets.store-import');
     Route::post('wallets/{wallet}/refresh-balance', [WalletController::class, 'refreshBalance'])->name('wallets.refresh-balance');
     Route::get('wallets/{wallet}/export-private-key', [WalletController::class, 'exportPrivateKey'])->name('wallets.export-private-key');
+});
+
+// Routes pour les wallets view-only (nécessite authentification)
+Route::middleware(['auth'])->group(function () {
+    Route::resource('view-only-wallets', ViewOnlyWalletController::class)->except(['create', 'edit']);
+    Route::post('view-only-wallets/{viewOnlyWallet}/refresh-balance', [ViewOnlyWalletController::class, 'refreshBalance'])->name('view-only-wallets.refresh-balance');
+    Route::post('view-only-wallets/{viewOnlyWallet}/refresh-statistics', [ViewOnlyWalletController::class, 'refreshStatistics'])->name('view-only-wallets.refresh-statistics');
 });
 
 // Routes pour les smart contracts (nécessite authentification)

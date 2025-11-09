@@ -284,6 +284,151 @@
 </div>
 @endif
 
+<!-- View-Only Wallets Section -->
+@if($viewOnlyWallets->isNotEmpty())
+<div class="view-only-section">
+    <div class="section-header-modern">
+        <div class="section-title-wrapper">
+            <div class="section-icon">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                </svg>
+            </div>
+            <div>
+                <h2 class="section-title-modern">Wallets en Lecture Seule</h2>
+                <p class="section-subtitle-modern">Suivez vos wallets favoris sans clé privée</p>
+            </div>
+        </div>
+        <div class="view-toggle-group">
+            <span class="wallet-count-badge">{{ $viewOnlyWallets->count() }} wallet{{ $viewOnlyWallets->count() > 1 ? 's' : '' }}</span>
+        </div>
+    </div>
+
+    <div class="wallets-grid view-only-grid">
+        @foreach($viewOnlyWallets as $viewOnlyWallet)
+        <div class="wallet-card-modern wallet-card-view-only {{ !$viewOnlyWallet->is_active ? 'wallet-inactive' : '' }}">
+            <!-- Card Background Effect -->
+            <div class="wallet-card-bg"></div>
+            
+            <!-- View-Only Badge -->
+            <div class="view-only-badge">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                </svg>
+                <span>Lecture Seule</span>
+            </div>
+            
+            <!-- Status Indicator -->
+            <div class="wallet-status-indicator {{ $viewOnlyWallet->is_active ? 'status-active' : 'status-inactive' }}"></div>
+            
+            <!-- Card Header -->
+            <div class="wallet-modern-header">
+                <div class="wallet-modern-icon wallet-icon-view-only">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                    </svg>
+                </div>
+                <div class="wallet-modern-info">
+                    <h3 class="wallet-modern-name">{{ $viewOnlyWallet->name }}</h3>
+                    <div class="wallet-modern-meta">
+                        <span class="network-badge-modern network-{{ $viewOnlyWallet->network }}">
+                            <span class="network-dot"></span>
+                            {{ strtoupper($viewOnlyWallet->network) }}
+                        </span>
+                        @if($viewOnlyWallet->is_active)
+                            <span class="active-badge">Actif</span>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            <!-- Address Section -->
+            <div class="wallet-modern-address">
+                <label class="address-label-modern">Adresse</label>
+                <div class="address-display-modern">
+                    <code class="address-code-modern">{{ Str::substr($viewOnlyWallet->address, 0, 10) }}...{{ Str::substr($viewOnlyWallet->address, -8) }}</code>
+                    <button class="btn-copy-modern" onclick="copyToClipboard('{{ $viewOnlyWallet->address }}')" title="Copier l'adresse">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Balance Section -->
+            <div class="wallet-modern-balance">
+                <div class="balance-main-modern">
+                    <div class="balance-eth">
+                        <span class="balance-label-modern">Balance</span>
+                        <div class="balance-amount-modern">
+                            <span class="balance-number">{{ number_format($viewOnlyWallet->balance, 4) }}</span>
+                            <span class="balance-unit">ETH</span>
+                        </div>
+                    </div>
+                    @if($viewOnlyWallet->balance_usd)
+                    <div class="balance-usd-modern">
+                        <span class="usd-symbol">$</span>{{ number_format($viewOnlyWallet->balance_usd, 2) }}
+                    </div>
+                    @endif
+                </div>
+                
+                <!-- Statistics Preview -->
+                @if($viewOnlyWallet->statistics)
+                <div class="statistics-preview">
+                    <div class="stat-item">
+                        <span class="stat-label">Transactions</span>
+                        <span class="stat-value">{{ number_format($viewOnlyWallet->statistics->total_transactions) }}</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">Contrats</span>
+                        <span class="stat-value">{{ number_format($viewOnlyWallet->statistics->smart_contract_interactions) }}</span>
+                    </div>
+                </div>
+                @endif
+            </div>
+
+            <!-- Description -->
+            @if($viewOnlyWallet->description)
+            <div class="wallet-modern-description">
+                <p>{{ Str::limit($viewOnlyWallet->description, 80) }}</p>
+            </div>
+            @endif
+
+            <!-- Actions -->
+            <div class="wallet-modern-actions">
+                <a href="{{ route('view-only-wallets.show', $viewOnlyWallet) }}" class="action-btn action-btn-view">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                    </svg>
+                    <span>Statistiques</span>
+                </a>
+                <form action="{{ route('view-only-wallets.refresh-balance', $viewOnlyWallet) }}" method="POST" style="display: inline;">
+                    @csrf
+                    <button type="submit" class="action-btn action-btn-refresh" title="Actualiser la balance">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        <span>Sync</span>
+                    </button>
+                </form>
+                <form action="{{ route('view-only-wallets.refresh-statistics', $viewOnlyWallet) }}" method="POST" style="display: inline;">
+                    @csrf
+                    <button type="submit" class="action-btn action-btn-stats" title="Actualiser les statistiques">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
+                        </svg>
+                        <span>Stats</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+        @endforeach
+    </div>
+</div>
+@endif
+
 @endsection
 
 @push('scripts')

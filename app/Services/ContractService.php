@@ -101,7 +101,13 @@ class ContractService
 
             $apiKey = config('services.etherscan.api_key', '');
             
-            $response = Http::timeout(30)->get($apiUrls[$chain], [
+            // Désactiver SSL verification en environnement local (Windows)
+            $http = Http::timeout(30);
+            if (config('app.env') === 'local') {
+                $http = $http->withOptions(['verify' => false]);
+            }
+            
+            $response = $http->get($apiUrls[$chain], [
                 'module' => 'contract',
                 'action' => 'getabi',
                 'address' => $address,
@@ -134,7 +140,13 @@ class ContractService
         try {
             $url = "https://api.routescan.io/v2/network/mainnet/evm/{$chainId}/etherscan/api";
             
-            $response = Http::timeout(30)->get($url, [
+            // Désactiver SSL verification en environnement local (Windows)
+            $http = Http::timeout(30);
+            if (config('app.env') === 'local') {
+                $http = $http->withOptions(['verify' => false]);
+            }
+            
+            $response = $http->get($url, [
                 'module' => 'contract',
                 'action' => 'getabi',
                 'address' => $address,
@@ -207,7 +219,13 @@ class ContractService
 
             $apiKey = config('services.etherscan.api_key', '');
             
-            $response = Http::timeout(30)->get($apiUrls[$chain], [
+            // Désactiver SSL verification en environnement local (Windows)
+            $http = Http::timeout(30);
+            if (config('app.env') === 'local') {
+                $http = $http->withOptions(['verify' => false]);
+            }
+            
+            $response = $http->get($apiUrls[$chain], [
                 'module' => 'contract',
                 'action' => 'getabi',
                 'address' => $address,
@@ -238,7 +256,13 @@ class ContractService
         try {
             $url = "https://api.routescan.io/v2/network/mainnet/evm/{$chainId}/etherscan/api";
             
-            $response = Http::timeout(30)->get($url, [
+            // Désactiver SSL verification en environnement local (Windows)
+            $http = Http::timeout(30);
+            if (config('app.env') === 'local') {
+                $http = $http->withOptions(['verify' => false]);
+            }
+            
+            $response = $http->get($url, [
                 'module' => 'contract',
                 'action' => 'getabi',
                 'address' => $address,

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Crypt;
 
@@ -77,6 +78,14 @@ class Wallet extends Model
     public function balanceHistory(): HasMany
     {
         return $this->hasMany(WalletBalanceHistory::class);
+    }
+
+    /**
+     * Relation polymorphique vers les statistiques
+     */
+    public function statistics(): MorphOne
+    {
+        return $this->morphOne(WalletStatistic::class, 'walletable');
     }
 
     /**

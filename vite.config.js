@@ -18,6 +18,7 @@ export default defineConfig({
                 'resources/css/profile.css',
                 'resources/css/contracts-index.css',
                 'resources/css/contracts-create.css',
+                'resources/css/view-only-wallets-show.css',
                 'resources/js/app.js'
             ],
             refresh: true,

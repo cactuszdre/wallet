@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Wallet;
+use App\Models\ViewOnlyWallet;
 use App\Repositories\WalletRepository;
 use App\Services\WalletService;
 use Illuminate\Http\Request;
@@ -26,8 +27,14 @@ class WalletController extends Controller
     {
         $wallets = $this->walletRepository->getUserWallets(Auth::id());
         $stats = $this->walletRepository->getUserStats(Auth::id());
+        
+        // Récupérer aussi les wallets view-only
+        $viewOnlyWallets = ViewOnlyWallet::where('user_id', Auth::id())
+            ->with('statistics')
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        return view('wallets.index', compact('wallets', 'stats'));
+        return view('wallets.index', compact('wallets', 'stats', 'viewOnlyWallets'));
     }
 
     /**

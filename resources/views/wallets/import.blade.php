@@ -62,7 +62,7 @@
             </div>
 
             <div class="card__body">
-                <form id="viewOnlyForm" class="form" method="POST" action="#">
+                <form id="viewOnlyForm" class="form" method="POST" action="{{ route('view-only-wallets.store') }}">
                     @csrf
 
                     <label class="form__label">Nom affiché</label>

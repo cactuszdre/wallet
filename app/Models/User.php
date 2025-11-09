@@ -55,6 +55,14 @@ class User extends Authenticatable
     }
 
     /**
+     * Relation avec les wallets view-only
+     */
+    public function viewOnlyWallets()
+    {
+        return $this->hasMany(ViewOnlyWallet::class);
+    }
+
+    /**
      * Relation avec les contrats intelligents
      */
     public function smartContracts()
