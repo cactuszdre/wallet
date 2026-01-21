@@ -67,14 +67,8 @@ class WalletStatisticsService
     private function fetchWalletData(string $address, string $network): ?array
     {
         try {
-            $chainId = $this->getChainId($network);
-            
-            // Utiliser Routescan pour Base et Base Sepolia
-            if (in_array($network, ['base', 'base-sepolia'])) {
-                return $this->fetchFromRoutescan($address, $chainId);
-            }
-            
-            // Utiliser Etherscan pour Ethereum et Sepolia
+            // Utiliser Etherscan API V2 pour tous les réseaux
+            // (Base a migré de Routescan vers Etherscan API V2)
             return $this->fetchFromEtherscan($address, $network);
         } catch (\Exception $e) {
             Log::error('Erreur lors de la récupération des données wallet', [
@@ -121,6 +115,17 @@ class WalletStatisticsService
                 $transactions = [];
             }
 
+            // Log pour débugger
+            Log::info('Routescan API Response', [
+                'address' => $address,
+                'chainId' => $chainId,
+                'status' => $txData['status'] ?? 'unknown',
+                'message' => $txData['message'] ?? 'no message',
+                'transaction_count' => count($transactions),
+                'first_tx' => $transactions[0] ?? null,
+                'last_tx' => $transactions[count($transactions) - 1] ?? null,
+            ]);
+
             return $this->parseTransactionData($transactions, $address);
         } catch (\Exception $e) {
             Log::error('Erreur Routescan', [
@@ -132,15 +137,30 @@ class WalletStatisticsService
     }
 
     /**
-     * Récupérer les données depuis Etherscan
+     * Récupérer les données depuis Etherscan API V2
+     * Etherscan API V2 unifie tous les réseaux avec chainid parameter
      */
     private function fetchFromEtherscan(string $address, string $network): ?array
     {
         try {
+            // Etherscan API V2 - endpoint unifié avec chainid
+            $baseUrl = 'https://api.etherscan.io/v2/api';
+            
+            // Mapping des chainIds
+            $chainIds = [
+                'base' => 8453,
+                'base-sepolia' => 84532,
+                'ethereum' => 1,
+                'sepolia' => 11155111,
+            ];
+
+            if (!isset($chainIds[$network])) {
+                Log::error('Réseau non supporté', ['network' => $network]);
+                return null;
+            }
+
+            $chainId = $chainIds[$network];
             $apiKey = config('services.etherscan.api_key', '');
-            $baseUrl = $network === 'ethereum' 
-                ? 'https://api.etherscan.io/api'
-                : "https://api-{$network}.etherscan.io/api";
 
             // Désactiver SSL verification en environnement local (Windows)
             $http = Http::timeout(30);
@@ -149,20 +169,61 @@ class WalletStatisticsService
             }
 
             $txListResponse = $http->get($baseUrl, [
+                'chainid' => $chainId,
                 'module' => 'account',
                 'action' => 'txlist',
                 'address' => $address,
                 'startblock' => 0,
                 'endblock' => 99999999,
+                'page' => 1,
+                'offset' => 10000,
                 'sort' => 'asc',
                 'apikey' => $apiKey,
             ]);
 
             if (!$txListResponse->successful()) {
+                Log::error('Erreur HTTP Etherscan', [
+                    'status' => $txListResponse->status(),
+                    'network' => $network,
+                    'address' => $address,
+                ]);
                 return null;
             }
 
             $txData = $txListResponse->json();
+            
+            // Log pour débugger
+            Log::info('Etherscan API Response', [
+                'address' => $address,
+                'network' => $network,
+                'status' => $txData['status'] ?? 'unknown',
+                'message' => $txData['message'] ?? 'no message',
+                'transaction_count' => is_array($txData['result'] ?? null) ? count($txData['result']) : 0,
+            ]);
+
+            if (!isset($txData['status']) || $txData['status'] !== '1') {
+                Log::warning('Erreur API Etherscan', [
+                    'address' => $address,
+                    'network' => $network,
+                    'message' => $txData['message'] ?? 'Unknown error'
+                ]);
+                return null;
+            }
+
+            $transactions = $txData['result'] ?? [];
+
+            if (!is_array($transactions)) {
+                return null;
+            }
+
+            return $this->parseTransactionData($transactions, $address);
+        } catch (\Exception $e) {
+            Log::error('Erreur Etherscan API', [
+                'address' => $address,
+                'network' => $network,
+                'error' => $e->getMessage(),
+            ]);
+            return null;
             $transactions = $txData['result'] ?? [];
 
             if (!is_array($transactions)) {

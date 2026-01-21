@@ -1,59 +1,177 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 💰 Moula - Gestionnaire de Portefeuilles Crypto
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+Application SaaS de gestion de portefeuilles crypto et d'interaction avec des smart contracts, construite avec Laravel 12 et des technologies Web3.
 
-## About Laravel
+## 📋 Description du Projet
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Moula est une plateforme de gestion de portefeuilles crypto qui permet aux utilisateurs de :
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **Créer et gérer des portefeuilles Ethereum/Base** - Génération sécurisée de clés privées et adresses
+- **Suivre les balances et transactions** - Historique complet des mouvements de fonds
+- **Surveiller des portefeuilles en lecture seule** - Ajouter des wallets externes pour le suivi
+- **Interagir avec des smart contracts** - Ajouter des contrats et exécuter leurs fonctions
+- **Consulter des statistiques** - Tableaux de bord et analytics sur vos actifs
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 🛠️ Technologies Utilisées
 
-## Learning Laravel
+### Backend
+- **PHP 8.2+**
+- **Laravel 12** - Framework PHP
+- **Laravel Breeze** - Authentification
+- **MariaDB** - Base de données
+- **kornrunner/keccak** - Génération d'adresses Ethereum
+- **simplito/elliptic-php** - Cryptographie elliptique
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+### Frontend
+- **Vite 7** - Bundler JavaScript
+- **TailwindCSS 4** - Framework CSS
+- **Alpine.js** - Framework JavaScript léger
+- **Wagmi / Viem** - Librairies Web3
+- **Web3Modal** - Connexion de wallets
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Infrastructure
+- **Docker** - Conteneurisation (MariaDB + phpMyAdmin)
+- **Laravel Sail** - Environnement Docker pour Laravel
 
-## Laravel Sponsors
+## 📁 Structure du Projet
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+```
+app/
+├── Models/
+│   ├── User.php                    # Utilisateur
+│   ├── Wallet.php                  # Portefeuille crypto
+│   ├── ViewOnlyWallet.php          # Portefeuille en lecture seule
+│   ├── WalletTransaction.php       # Transactions
+│   ├── WalletBalanceHistory.php    # Historique des balances
+│   ├── WalletStatistic.php         # Statistiques
+│   ├── SmartContract.php           # Contrats intelligents
+│   └── ContractInteraction.php     # Interactions avec contrats
+├── Services/
+│   ├── WalletService.php           # Génération de wallets
+│   ├── WalletStatisticsService.php # Calcul de statistiques
+│   └── ContractService.php         # Gestion des contrats
+└── Repositories/
+    ├── WalletRepository.php        # Accès données wallets
+    └── TransactionRepository.php   # Accès données transactions
+```
 
-### Premium Partners
+## 🚀 Installation et Lancement en Local
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### Prérequis
 
-## Contributing
+- **PHP 8.2** ou supérieur
+- **Composer** - Gestionnaire de dépendances PHP
+- **Node.js 18+** et **npm**
+- **Docker** et **Docker Compose** (pour la base de données)
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### Étapes d'installation
 
-## Code of Conduct
+#### 1. Cloner le projet
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+```bash
+git clone <url-du-repo>
+cd moula
+```
 
-## Security Vulnerabilities
+#### 2. Lancer la base de données avec Docker
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+```bash
+docker-compose up -d
+```
 
-## License
+Cela démarre :
+- **MariaDB** sur le port `3306`
+- **phpMyAdmin** sur le port `8080` (accessible via http://localhost:8080)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+#### 3. Installer les dépendances et configurer le projet
+
+```bash
+composer setup
+```
+
+Cette commande exécute automatiquement :
+- Installation des dépendances PHP (`composer install`)
+- Copie du fichier `.env.example` vers `.env`
+- Génération de la clé d'application
+- Exécution des migrations
+- Installation des dépendances npm
+- Build des assets
+
+#### 4. Configurer les variables d'environnement
+
+Éditez le fichier `.env` avec les informations de connexion à la base de données :
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=moula_db
+DB_USERNAME=moula_user
+DB_PASSWORD=moula_password
+```
+
+#### 5. Lancer le serveur de développement
+
+**Sur Windows**, ouvrez deux terminaux séparés :
+
+```bash
+# Terminal 1 - Serveur Laravel
+php artisan serve
+```
+
+```bash
+# Terminal 2 - Vite (Hot Module Replacement)
+npm run dev
+```
+
+**Sur Linux/Mac**, vous pouvez utiliser :
+
+```bash
+composer dev
+```
+
+Cette commande lance simultanément le serveur Laravel, Vite, la queue et les logs.
+
+> ⚠️ **Note Windows** : La commande `composer dev` ne fonctionne pas sur Windows car Laravel Pail nécessite l'extension `pcntl` qui n'est disponible que sur Unix/Linux.
+
+### Commandes Utiles
+
+| Commande | Description |
+|----------|-------------|
+| `composer setup` | Installation complète du projet |
+| `php artisan serve` | Lancer le serveur Laravel (http://localhost:8000) |
+| `npm run dev` | Lancer Vite en mode développement |
+| `composer test` | Exécuter les tests PHPUnit |
+| `php artisan migrate` | Exécuter les migrations |
+| `php artisan migrate:fresh --seed` | Réinitialiser la base de données |
+| `npm run build` | Build de production des assets |
+
+### Accès aux Services
+
+| Service | URL | Identifiants |
+|---------|-----|--------------|
+| Application | http://localhost:8000 | - |
+| phpMyAdmin | http://localhost:8080 | root / root_password_secret |
+| Base de données | localhost:3306 | moula_user / moula_password |
+
+### Compte Utilisateur de Test
+
+Après avoir exécuté les seeders (`php artisan migrate:fresh --seed`), un compte de test est disponible :
+
+| Email | Mot de passe |
+|-------|--------------|
+| test@example.com | password |
+
+## 🧪 Tests
+
+Exécuter les tests unitaires et fonctionnels :
+
+```bash
+composer test
+# ou
+php artisan test
+```
+
+## 📄 Licence
+
+Ce projet est sous licence MIT.

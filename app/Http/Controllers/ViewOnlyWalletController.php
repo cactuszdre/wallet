@@ -46,9 +46,9 @@ class ViewOnlyWalletController extends Controller
             'description' => 'nullable|string|max:1000',
         ]);
 
-        // Vérifier si l'adresse existe déjà pour cet utilisateur
+        // Vérifier si l'adresse existe déjà pour cet utilisateur (comparaison en minuscules)
         $existing = ViewOnlyWallet::where('user_id', Auth::id())
-            ->where('address', strtolower($request->address))
+            ->whereRaw('LOWER(address) = ?', [strtolower($request->address)])
             ->first();
 
         if ($existing) {
@@ -61,11 +61,11 @@ class ViewOnlyWalletController extends Controller
         $balanceData = $this->walletService->getBalance($request->address, $request->network);
         $balance = $balanceData['success'] ? $balanceData['balance'] : 0;
 
-        // Créer le wallet view-only
+        // Créer le wallet view-only (garder l'adresse telle quelle)
         $viewOnlyWallet = ViewOnlyWallet::create([
             'user_id' => Auth::id(),
             'name' => $request->name,
-            'address' => strtolower($request->address),
+            'address' => $request->address,
             'network' => $request->network,
             'balance' => $balance,
             'description' => $request->description,

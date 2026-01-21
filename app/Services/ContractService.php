@@ -80,25 +80,24 @@ class ContractService
     public function fetchAbiFromExplorer(string $address, string $chain = 'base'): ?array
     {
         try {
-            // Utiliser Routescan pour Base et Base Sepolia
-            if ($chain === 'base') {
-                return $this->fetchFromRoutescan($address, 8453);
-            }
+            // Etherscan API V2 - endpoint unifié avec chainid
+            $baseUrl = 'https://api.etherscan.io/v2/api';
             
-            if ($chain === 'baseSepolia') {
-                return $this->fetchFromRoutescan($address, 84532);
-            }
-
-            // Utiliser Etherscan pour Ethereum et Sepolia
-            $apiUrls = [
-                'ethereum' => 'https://api.etherscan.io/api',
-                'sepolia' => 'https://api-sepolia.etherscan.io/api',
+            // Mapping des chainIds
+            $chainIds = [
+                'base' => 8453,
+                'base-sepolia' => 84532,
+                'baseSepolia' => 84532,
+                'ethereum' => 1,
+                'sepolia' => 11155111,
             ];
 
-            if (!isset($apiUrls[$chain])) {
+            if (!isset($chainIds[$chain])) {
+                Log::error('Chaîne non supportée', ['chain' => $chain]);
                 return null;
             }
 
+            $chainId = $chainIds[$chain];
             $apiKey = config('services.etherscan.api_key', '');
             
             // Désactiver SSL verification en environnement local (Windows)
@@ -107,7 +106,8 @@ class ContractService
                 $http = $http->withOptions(['verify' => false]);
             }
             
-            $response = $http->get($apiUrls[$chain], [
+            $response = $http->get($baseUrl, [
+                'chainid' => $chainId,
                 'module' => 'contract',
                 'action' => 'getabi',
                 'address' => $address,
@@ -116,8 +116,10 @@ class ContractService
 
             if ($response->successful()) {
                 $data = $response->json();
-                if ($data['status'] === '1' && isset($data['result'])) {
-                    return json_decode($data['result'], true);
+                if (($data['status'] === '1' || $data['status'] === 1) && isset($data['result'])) {
+                    // Vérifier si le résultat est déjà un array ou une string JSON
+                    $abi = is_string($data['result']) ? json_decode($data['result'], true) : $data['result'];
+                    return is_array($abi) ? $abi : null;
                 }
             }
 
@@ -134,6 +136,7 @@ class ContractService
 
     /**
      * Récupérer l'ABI depuis Routescan (pour Base et Base Sepolia)
+     * @deprecated Routescan a été remplacé par Etherscan API V2
      */
     private function fetchFromRoutescan(string $address, int $chainId): ?array
     {
@@ -198,25 +201,23 @@ class ContractService
     public function isContractVerified(string $address, string $chain = 'base'): bool
     {
         try {
-            // Utiliser Routescan pour Base et Base Sepolia
-            if ($chain === 'base') {
-                return $this->isVerifiedOnRoutescan($address, 8453);
-            }
+            // Etherscan API V2 - endpoint unifié avec chainid
+            $baseUrl = 'https://api.etherscan.io/v2/api';
             
-            if ($chain === 'baseSepolia') {
-                return $this->isVerifiedOnRoutescan($address, 84532);
-            }
-
-            // Utiliser Etherscan pour Ethereum et Sepolia
-            $apiUrls = [
-                'ethereum' => 'https://api.etherscan.io/api',
-                'sepolia' => 'https://api-sepolia.etherscan.io/api',
+            // Mapping des chainIds
+            $chainIds = [
+                'base' => 8453,
+                'base-sepolia' => 84532,
+                'baseSepolia' => 84532,
+                'ethereum' => 1,
+                'sepolia' => 11155111,
             ];
 
-            if (!isset($apiUrls[$chain])) {
+            if (!isset($chainIds[$chain])) {
                 return false;
             }
 
+            $chainId = $chainIds[$chain];
             $apiKey = config('services.etherscan.api_key', '');
             
             // Désactiver SSL verification en environnement local (Windows)
@@ -225,7 +226,8 @@ class ContractService
                 $http = $http->withOptions(['verify' => false]);
             }
             
-            $response = $http->get($apiUrls[$chain], [
+            $response = $http->get($baseUrl, [
+                'chainid' => $chainId,
                 'module' => 'contract',
                 'action' => 'getabi',
                 'address' => $address,
@@ -234,7 +236,7 @@ class ContractService
 
             if ($response->successful()) {
                 $data = $response->json();
-                return $data['status'] === '1';
+                return ($data['status'] === '1' || $data['status'] === 1);
             }
 
             return false;
@@ -250,6 +252,7 @@ class ContractService
 
     /**
      * Vérifier si un contrat est vérifié sur Routescan
+     * @deprecated Routescan a été remplacé par Etherscan API V2
      */
     private function isVerifiedOnRoutescan(string $address, int $chainId): bool
     {
